@@ -1,6 +1,6 @@
 # Mbadocx
 
-## Introduction
+## Introduction	
 
 A lightweight and structured Go library for generating `.docx` (Microsoft Word) files using only the standard library. Build DOCX documents with headings, styled text (bold, italic), hyperlinks, metadata, and more — without external dependencies.
 
@@ -82,4 +82,4 @@ func main() {
 Contributions, feedback, and suggestions are very welcome! Feel free to open an issue or submit a PR.
 
 ## License
-MIT License © 2025 Didik Prabowo
+MIT License © 2025 [Didik Prabowo](./LICENSE)

@@ -24,7 +24,7 @@ func main() {
 	p1.AddHyperlink("link.", "http://github.com")
 
 	// Create document
-	file, err := os.Create("example.docx")
+	file, err := os.Create("testdata/example.docx")
 	if err != nil {
 		log.Fatal(err)
 	}
