@@ -60,7 +60,7 @@ func (ap *AppProperties) Path() string {
 
 // Byte generates the XML content for docProps/app.xml
 func (ap *AppProperties) Byte() ([]byte, error) {
-	metadata := ap.document.GetMetadata()
+	metadata := ap.document.Metadata().Get()
 
 	props := &AppPropertiesXML{
 		Xmlns:   "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties",

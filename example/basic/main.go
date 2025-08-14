@@ -8,6 +8,7 @@ import (
 
 func main() {
 	docx := mbadocx.New()
+	defer docx.Close()
 
 	// Add heading 2
 	docx.AddHeading("Lorem Ipsum", 2)

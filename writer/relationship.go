@@ -2,6 +2,7 @@ package writer
 
 import (
 	"bytes"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"log"
@@ -37,10 +38,7 @@ func (r *Relationships) Byte() ([]byte, error) {
 
 	var buf bytes.Buffer
 
-	// Add XML declaration
-	buf.WriteString(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` + "\n")
-
-	// Append marshaled <Relationships> content
+	buf.WriteString(xml.Header)
 	buf.Write(relsXML)
 
 	log.Printf("'%s' has been created.\n", r.Path())

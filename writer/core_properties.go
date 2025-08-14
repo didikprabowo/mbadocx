@@ -81,7 +81,7 @@ func (cp *CoreProperties) Path() string {
 }
 
 func (cr *CoreProperties) Byte() ([]byte, error) {
-	metadata := cr.document.GetMetadata()
+	metadata := cr.document.Metadata().Get()
 	props := &CorePropertiesXML{
 		XmlnsCp:       "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
 		XmlnsDc:       "http://purl.org/dc/elements/1.1/",
