@@ -160,6 +160,12 @@ func (p *Paragraph) SetWidowControl(control bool) *Paragraph {
 }
 
 // SetNumbering sets numbering properties
+//
+//	ID: 1 -> Bullet list
+//	ID: 2 -> Decimal numbering
+//	ID: 3 -> Legal numbering
+//	ID: 4 -> Roman numerals
+//	ID: 5 -> Custom symbols
 func (p *Paragraph) SetNumbering(numID string, level int) *Paragraph {
 	p.Properties.NumberingID = numID
 	p.Properties.NumberingLevel = level

@@ -104,6 +104,7 @@ func NewDefault() *Relationships {
 	rels.AddPackageRelationship(TypeExtProperties, "docProps/app.xml", TargetModeInternal)
 
 	// Add default document relationships
+	rels.AddDocumentRelationship(TypeNumbering, "numbering.xml", TargetModeInternal)
 	rels.AddDocumentRelationship(TypeStyles, "styles.xml", TargetModeInternal)
 	rels.AddDocumentRelationship(TypeSettings, "settings.xml", TargetModeInternal)
 	rels.AddDocumentRelationship(TypeWebSettings, "webSettings.xml", TargetModeInternal)

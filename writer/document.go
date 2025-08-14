@@ -42,6 +42,7 @@ import (
 	"io"
 	"log"
 
+	"github.com/didikprabowo/mbadocx/settings"
 	"github.com/didikprabowo/mbadocx/types"
 )
 
@@ -93,15 +94,64 @@ func (d *Document) Byte() ([]byte, error) {
 		}
 	}
 
+	d.writeSection(&buf)
+
 	// Close body and document
 	// Close </w:body> and </w:document>
 	buf.WriteString(indent + "</w:body>\n")
 	buf.WriteString("</w:document>\n")
 
 	log.Printf("'%s' has been created.\n", d.Path())
-	// log.Print(buf.String())
+	log.Print(buf.String())
 
 	return buf.Bytes(), nil
+}
+
+func (d *Document) writeSection(buf *bytes.Buffer) {
+	pageSettings := d.document.GetSettings().Page
+	if pageSettings == nil {
+		pageSettings = settings.DefaultSettings().Page
+	}
+	// Section properties - THIS controls the actual page layout
+	buf.WriteString(`        <w:sectPr>`)
+	buf.WriteString("\n")
+
+	// Page size and orientation using struct fields
+	buf.WriteString(`            <w:pgSz`)
+	buf.WriteString(fmt.Sprintf(` w:w="%d"`, pageSettings.Width))
+	buf.WriteString(fmt.Sprintf(` w:h="%d"`, pageSettings.Height))
+	if pageSettings.Orientation == "landscape" {
+		buf.WriteString(` w:orient="landscape"`)
+	}
+	buf.WriteString("/>\n")
+
+	// Page margins using struct fields
+	buf.WriteString(`            <w:pgMar`)
+	buf.WriteString(fmt.Sprintf(` w:top="%d"`, pageSettings.MarginTop))
+	buf.WriteString(fmt.Sprintf(` w:right="%d"`, pageSettings.MarginRight))
+	buf.WriteString(fmt.Sprintf(` w:bottom="%d"`, pageSettings.MarginBottom))
+	buf.WriteString(fmt.Sprintf(` w:left="%d"`, pageSettings.MarginLeft))
+	buf.WriteString(fmt.Sprintf(` w:header="%d"`, pageSettings.MarginHeader))
+	buf.WriteString(fmt.Sprintf(` w:footer="%d"`, pageSettings.MarginFooter))
+	if pageSettings.MarginGutter > 0 {
+		buf.WriteString(fmt.Sprintf(` w:gutter="%d"`, pageSettings.MarginGutter))
+	}
+	buf.WriteString("/>\n")
+
+	// Paper source (optional)
+	buf.WriteString(`            <w:paperSrc w:first="1" w:other="1"/>`)
+	buf.WriteString("\n")
+
+	// Columns (single column by default)
+	buf.WriteString(`            <w:cols w:space="708"/>`)
+	buf.WriteString("\n")
+
+	// Document grid (for Asian text layout)
+	buf.WriteString(`            <w:docGrid w:linePitch="360"/>`)
+	buf.WriteString("\n")
+
+	buf.WriteString(`        </w:sectPr>`)
+	buf.WriteString("\n")
 }
 
 func (d *Document) WriteTo(w io.Writer) (int64, error) {

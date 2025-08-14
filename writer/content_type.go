@@ -47,6 +47,7 @@ func newContentType() *ContentTypes {
 		},
 		Overrides: []Override{
 			{PartName: "/word/document.xml", ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"},
+			{PartName: "/word/numbering.xml", ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"},
 			{PartName: "/word/styles.xml", ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"},
 			{PartName: "/word/settings.xml", ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"},
 			{PartName: "/word/webSettings.xml", ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"},

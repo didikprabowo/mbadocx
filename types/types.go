@@ -4,13 +4,15 @@ import (
 	"time"
 
 	"github.com/didikprabowo/mbadocx/relationships"
+	"github.com/didikprabowo/mbadocx/settings"
 )
 
 // DocumentInterface provides access to document data for the writer
 type Document interface {
 	GetBody() Body
 	GetRelationships() Relationships
-	GetMetadata() Metadata
+	GetMetadata() *Metadata
+	GetSettings() *settings.DocumentSettings
 }
 
 // BodyInterface provides access to body elements

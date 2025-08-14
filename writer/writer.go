@@ -89,12 +89,15 @@ func (w *Writer) Write(writer io.Writer) error {
 	var components []zipWritable
 
 	components = append(components,
-		newContentType(),                    // [Content_Types].xml
+		newContentType(), // [Content_Types].xml
+		NewSetting(w.document),
 		newRelationships(w.document),        // _rels/.rels
 		newDocumentRelationship(w.document), // word/_rels/document.xml.rels
 		newDocument(w.document),             // word/document.xml
 		newCoreProperties(w.document),       // docProps/core.xml
 		newAppProperties(w.document),        // docProps/app.xml
+		newStyles(w.document),
+		newNumberingDefinitions(), // word/numbering.xml
 		// Add others like styles, header/footer, etc.
 	)
 
