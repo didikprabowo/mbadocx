@@ -216,20 +216,6 @@ func (h *Hyperlink) SetColor(color string) *Hyperlink {
 	return h
 }
 
-// GetText returns all text content in the hyperlink
-func (h *Hyperlink) GetText() string {
-	var text strings.Builder
-
-	for _, child := range h.Children {
-		switch c := child.(type) {
-		case *Run:
-			text.WriteString(c.GetText())
-		}
-	}
-
-	return text.String()
-}
-
 // Clone creates a deep copy of the hyperlink
 func (h *Hyperlink) Clone() *Hyperlink {
 	clone := &Hyperlink{

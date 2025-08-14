@@ -47,9 +47,26 @@ func (r *Run) AddBreak() *Run {
 	return r
 }
 
+// AddPageBreak
+func (r *Run) AddPageBreak() *Run {
+	r.Children = append(r.Children, NewPageBreak())
+	return r
+}
+
 // AddTab adds a tab character
 func (r *Run) AddTab() *Run {
 	r.Children = append(r.Children, NewTab())
+	return r
+}
+
+// AddSpace adds exactly N space characters (preserved)
+func (r *Run) AddSpace(count int) *Run {
+	spaces := strings.Repeat(" ", count)
+	t := &Text{
+		Value:         spaces,
+		PreserveSpace: true, // Must preserve!
+	}
+	r.Children = append(r.Children, t)
 	return r
 }
 
@@ -196,30 +213,14 @@ func (r *Run) Clone() *Run {
 			})
 		case *LineBreak:
 			newRun.Children = append(newRun.Children, NewLineBreak())
+		case *PageBreak:
+			newRun.Children = append(newRun.Children, NewPageBreak())
 		case *Tab:
 			newRun.Children = append(newRun.Children, NewTab())
 		}
 	}
 
 	return newRun
-}
-
-// GetText returns all text content in the run
-func (r *Run) GetText() string {
-	var text strings.Builder
-
-	for _, child := range r.Children {
-		switch c := child.(type) {
-		case *Text:
-			text.WriteString(c.Value)
-		case *LineBreak:
-			text.WriteString("\n")
-		case *Tab:
-			text.WriteString("\t")
-		}
-	}
-
-	return text.String()
 }
 
 // HasFormatting returns true if the run has any formatting applied

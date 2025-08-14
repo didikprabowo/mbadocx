@@ -4,7 +4,6 @@ package elements
 import (
 	"bytes"
 	"fmt"
-	"strings"
 
 	"github.com/didikprabowo/mbadocx/properties"
 	"github.com/didikprabowo/mbadocx/types"
@@ -74,25 +73,18 @@ func (p *Paragraph) AddFormattedText(text string, format func(*Run)) *Run {
 	return r
 }
 
-// AddField adds a field to the paragraph
-func (p *Paragraph) AddField(fieldType, instruction string) *Field {
-	f := NewField(fieldType, instruction)
-	p.Children = append(p.Children, f)
-	return f
+// AddLineBreak adds a paragraph
+func (p *Paragraph) AddLineBreak() *Paragraph {
+	run := p.AddRun()
+	run.AddBreak()
+	return p
 }
 
-// AddBookmark adds a bookmark to the paragraph
-func (p *Paragraph) AddBookmark(name string) *Bookmark {
-	b := NewBookmark(name)
-	p.Children = append(p.Children, b)
-	return b
-}
-
-// AddComment adds a comment anchor to the paragraph
-func (p *Paragraph) AddComment(commentID string) *CommentRangeStart {
-	c := NewCommentRangeStart(commentID)
-	p.Children = append(p.Children, c)
-	return c
+// AddPageBreak adds a page break to the paragraph
+func (p *Paragraph) AddPageBreak() *Paragraph {
+	run := p.AddRun()
+	run.AddPageBreak()
+	return p
 }
 
 // SetAlignment sets the paragraph alignment
@@ -217,91 +209,9 @@ func (p *Paragraph) Clone() *Paragraph {
 	return newPara
 }
 
-// GetText returns all text content in the paragraph
-func (p *Paragraph) GetText() string {
-	var text strings.Builder
-
-	for _, child := range p.Children {
-		switch c := child.(type) {
-		case *Run:
-			text.WriteString(c.GetText())
-		case *Hyperlink:
-			text.WriteString(c.GetText())
-		case *Field:
-			text.WriteString(c.GetText())
-		}
-	}
-
-	return text.String()
-}
-
-// IsEmpty returns true if the paragraph has no content
-func (p *Paragraph) IsEmpty() bool {
-	return len(p.Children) == 0
-}
-
 // Clear removes all content from the paragraph
 func (p *Paragraph) Clear() {
 	p.Children = p.Children[:0]
-}
-
-// RemoveChild removes a child element
-func (p *Paragraph) RemoveChild(index int) bool {
-	if index < 0 || index >= len(p.Children) {
-		return false
-	}
-	p.Children = append(p.Children[:index], p.Children[index+1:]...)
-	return true
-}
-
-// InsertChild inserts a child at a specific position
-func (p *Paragraph) InsertChild(index int, child ParagraphChild) bool {
-	if index < 0 || index > len(p.Children) {
-		return false
-	}
-	p.Children = append(p.Children[:index], append([]ParagraphChild{child}, p.Children[index:]...)...)
-	return true
-}
-
-// FindRuns returns all runs in the paragraph
-func (p *Paragraph) FindRuns() []*Run {
-	runs := make([]*Run, 0)
-	for _, child := range p.Children {
-		if run, ok := child.(*Run); ok {
-			runs = append(runs, run)
-		}
-	}
-	return runs
-}
-
-// FindHyperlinks returns all hyperlinks in the paragraph
-func (p *Paragraph) FindHyperlinks() []*Hyperlink {
-	links := make([]*Hyperlink, 0)
-	for _, child := range p.Children {
-		if link, ok := child.(*Hyperlink); ok {
-			links = append(links, link)
-		}
-	}
-	return links
-}
-
-// ReplaceText replaces all occurrences of old text with new text
-func (p *Paragraph) ReplaceText(oldText, newText string) int {
-	count := 0
-	for _, child := range p.Children {
-		switch c := child.(type) {
-		case *Run:
-			for _, runChild := range c.Children {
-				if text, ok := runChild.(*Text); ok {
-					if strings.Contains(text.Value, oldText) {
-						text.Value = strings.ReplaceAll(text.Value, oldText, newText)
-						count++
-					}
-				}
-			}
-		}
-	}
-	return count
 }
 
 // Validate checks if the paragraph is valid

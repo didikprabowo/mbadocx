@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/didikprabowo/mbadocx/relationships"
-	"github.com/didikprabowo/mbadocx/settings"
-	"github.com/didikprabowo/mbadocx/styles"
 	"github.com/didikprabowo/mbadocx/types"
 	"github.com/didikprabowo/mbadocx/writer"
 )
@@ -16,8 +14,6 @@ type Document struct {
 	// Core components
 	body          *Body
 	relationships *relationships.Relationships
-	settings      *settings.DocumentSettings
-	style         *styles.DocumentStyles
 
 	// Metadata
 	metadata *types.Metadata
@@ -29,8 +25,6 @@ func New() *Document {
 		body:          &Body{Elements: make([]types.Element, 0)},
 		relationships: relationships.NewDefault(),
 		metadata:      NewDefaultMetadata(),
-		settings:      settings.DefaultSettings(),
-		style:         styles.DefaultDocumentStyles(),
 	}
 }
 
@@ -83,8 +77,6 @@ func (d *Document) Write(w io.Writer) error {
 	return docWriter.Write(w)
 }
 
-// Implement DocumentInterface methods
-
 // GetBody
 func (d *Document) GetBody() types.Body {
 	return d.body
@@ -93,17 +85,4 @@ func (d *Document) GetBody() types.Body {
 // GetRelationships
 func (d *Document) GetRelationships() types.Relationships {
 	return d.relationships
-}
-
-// GetSettings
-func (d *Document) GetSettings() *settings.DocumentSettings {
-	if d.settings == nil {
-		d.settings = settings.DefaultSettings()
-	}
-	return d.settings
-}
-
-// SetSettings
-func (d *Document) SetSettings(docSettings *settings.DocumentSettings) {
-	d.settings = docSettings
 }
