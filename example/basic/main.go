@@ -1,29 +1,26 @@
 package main
 
 import (
-	"log"
-
 	"github.com/didikprabowo/mbadocx"
 )
 
 func main() {
-	docx := mbadocx.New()
-	defer docx.Close()
+	// Create a new document
+	doc := mbadocx.New()
 
-	// Add heading 2
-	docx.AddHeading("Lorem Ipsum", 2)
+	// Add a paragraph with formatted text
+	para := doc.AddParagraph()
+	para.AddText("Hello, mbadocx!").SetBold(true).SetColor("#2E86C1").SetFontSize(16)
 
-	// Add 1st paragraph
-	p1 := docx.AddParagraph()
-	p1.AddText("Lorem Ipsum").AddSpace(1).SetBold(true)
-	p1.AddText("is simply dummy text of the printing and typesetting industry.").AddSpace(1)
-	p1.AddHyperlink("More detail able to clik", "http://tes.com")
+	// Add a hyperlink
+	para.AddHyperlink("Visit GitHub", "https://github.com/didikprabowo/mbadocx")
 
-	// Add text on the next page
-	docx.AddParagraph().AddPageBreak().AddText("Example")
+	// Add a line break and another paragraph
+	para.AddLineBreak()
+	doc.AddParagraph().AddText("This is a second paragraph.")
 
-	err := docx.Save("testdata/basic.docx")
-	if err != nil {
-		log.Fatal(err)
+	// Save the document
+	if err := doc.Save("testdata/basic.docx"); err != nil {
+		panic(err)
 	}
 }

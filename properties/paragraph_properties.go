@@ -300,8 +300,14 @@ func (pp *ParagraphProperties) IsEmpty() bool {
 func (pp *ParagraphProperties) Validate() error {
 	// Validate alignment
 	validAlignments := map[string]bool{
-		"left": true, "center": true, "right": true, "justify": true,
-		"distribute": true, "start": true, "end": true, "": true,
+		"left":       true,
+		"center":     true,
+		"right":      true,
+		"justify":    true,
+		"distribute": true,
+		"start":      true,
+		"end":        true,
+		"":           true,
 	}
 	if !validAlignments[pp.Alignment] {
 		return fmt.Errorf("invalid alignment: %s", pp.Alignment)
@@ -309,8 +315,12 @@ func (pp *ParagraphProperties) Validate() error {
 
 	// Validate text alignment
 	validTextAlignments := map[string]bool{
-		"auto": true, "baseline": true, "bottom": true, "center": true,
-		"top": true, "": true,
+		"auto":     true,
+		"baseline": true,
+		"bottom":   true,
+		"center":   true,
+		"top":      true,
+		"":         true,
 	}
 	if !validTextAlignments[pp.TextAlignment] {
 		return fmt.Errorf("invalid text alignment: %s", pp.TextAlignment)

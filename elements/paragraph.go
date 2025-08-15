@@ -9,6 +9,16 @@ import (
 	"github.com/didikprabowo/mbadocx/types"
 )
 
+type ListType string
+
+const (
+	ListTypeBullet  ListType = "Bullet"
+	ListTypeDecimal ListType = "Decimal numbering"
+	ListTypeLegal   ListType = "Legal numbering"
+	ListTypeRoman   ListType = "Roman numerals"
+	ListTypeCustom  ListType = "Custom symbols"
+)
+
 // Paragraph represents a paragraph element
 type Paragraph struct {
 	document   types.Document
@@ -89,6 +99,10 @@ func (p *Paragraph) AddPageBreak() *Paragraph {
 
 // SetAlignment sets the paragraph alignment
 func (p *Paragraph) SetAlignment(alignment string) *Paragraph {
+	// Map "justify" to "both" for DOCX compatibility
+	if alignment == "justify" {
+		alignment = "both"
+	}
 	p.Properties.Alignment = alignment
 	return p
 }
@@ -158,7 +172,22 @@ func (p *Paragraph) SetWidowControl(control bool) *Paragraph {
 //	ID: 3 -> Legal numbering
 //	ID: 4 -> Roman numerals
 //	ID: 5 -> Custom symbols
-func (p *Paragraph) SetNumbering(numID string, level int) *Paragraph {
+func (p *Paragraph) SetNumbering(listType ListType, level int) *Paragraph {
+	var numID string
+	switch listType {
+	case ListTypeBullet:
+		numID = "1"
+	case ListTypeDecimal:
+		numID = "2"
+	case ListTypeLegal:
+		numID = "3"
+	case ListTypeRoman:
+		numID = "4"
+	case ListTypeCustom:
+		numID = "5"
+	default:
+		numID = "1"
+	}
 	p.Properties.NumberingID = numID
 	p.Properties.NumberingLevel = level
 	return p

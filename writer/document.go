@@ -94,7 +94,6 @@ func (d *Document) Byte() ([]byte, error) {
 	}
 
 	// Close body and document
-	// Close </w:body> and </w:document>
 	buf.WriteString(indent + "</w:body>\n")
 	buf.WriteString("</w:document>\n")
 

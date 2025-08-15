@@ -15,25 +15,26 @@ import (
 	"github.com/didikprabowo/mbadocx/writer"
 )
 
+// Document represents a DOCX document and its core components.
 type Document struct {
 	// Core components
-	contentTypes  *contenttypes.ContentTypes
-	body          *Body
-	relationships *relationships.Relationships
-	styles        *styles.Styles
+	contentTypes  *contenttypes.ContentTypes   // Content types for the DOCX package
+	body          *Body                        // Main document body
+	relationships *relationships.Relationships // Relationships (e.g., images, styles)
+	styles        *styles.Styles               // Document styles
 
 	// Metadata
-	metadata *metadata.Metadata
+	metadata *metadata.Metadata // Document metadata (author, timestamps, etc.)
 
 	// Internal state
-	mu     sync.RWMutex
-	closed bool
+	mu     sync.RWMutex // Mutex for thread safety
+	closed bool         // Indicates if the document is closed
 
 	// Resources that need cleanup
-	openFiles []*os.File
+	openFiles []*os.File // List of open files for cleanup
 }
 
-// New creates a new empty document
+// New creates a new empty document with default components.
 func New() *Document {
 	return &Document{
 		body:          &Body{Elements: make([]types.Element, 0)},
@@ -46,8 +47,8 @@ func New() *Document {
 	}
 }
 
-// Save writes the document to a file
-func (d *Document) Save(filename string) error {
+// Save writes the document to a file with the given filename.
+func (d *Document) Save(filename string) (err error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
@@ -60,15 +61,13 @@ func (d *Document) Save(filename string) error {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
 
-	// Track the file for cleanup
 	d.openFiles = append(d.openFiles, file)
 
-	// Ensure file is closed even if Write fails
 	defer func() {
-		if closeErr := file.Close(); closeErr != nil && err == nil {
+		closeErr := file.Close()
+		if closeErr != nil && err == nil {
 			err = closeErr
 		}
-		// Remove from openFiles after closing
 		for i, f := range d.openFiles {
 			if f == file {
 				d.openFiles = append(d.openFiles[:i], d.openFiles[i+1:]...)
@@ -77,19 +76,19 @@ func (d *Document) Save(filename string) error {
 		}
 	}()
 
-	if err := d.write(file); err != nil {
-		return fmt.Errorf("failed to write document: %w", err)
+	if writeErr := d.write(file); writeErr != nil {
+		err = fmt.Errorf("failed to write document: %w", writeErr)
 	}
 
-	return nil
+	return
 }
 
-// SaveAs is an alias for Save
+// SaveAs is an alias for Save, writes the document to a new file.
 func (d *Document) SaveAs(filename string) error {
 	return d.Save(filename)
 }
 
-// Write writes the document to an io.Writer
+// Write writes the document to an io.Writer (e.g., file, buffer).
 func (d *Document) Write(w io.Writer) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -101,7 +100,7 @@ func (d *Document) Write(w io.Writer) error {
 	return d.write(w)
 }
 
-// write is the internal write method (must be called with lock held)
+// write is the internal write method (must be called with lock held).
 func (d *Document) write(w io.Writer) error {
 	// Set modified time during write
 	d.metadata.Modified = time.Now()
@@ -116,7 +115,7 @@ func (d *Document) write(w io.Writer) error {
 	return nil
 }
 
-// Close releases all resources associated with the document
+// Close releases all resources associated with the document.
 func (d *Document) Close() error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -154,14 +153,14 @@ func (d *Document) Close() error {
 	return nil
 }
 
-// IsClosed returns whether the document has been closed
+// IsClosed returns whether the document has been closed.
 func (d *Document) IsClosed() bool {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.closed
 }
 
-// GetMetadata returns the document metadata
+// Metadata returns the document metadata.
 func (d *Document) Metadata() types.Metadata {
 	if d.closed {
 		return nil
@@ -169,7 +168,7 @@ func (d *Document) Metadata() types.Metadata {
 	return d.metadata
 }
 
-// GetBody returns the document body
+// GetBody returns the document body.
 func (d *Document) GetBody() types.Body {
 	if d.closed {
 		return nil
@@ -177,7 +176,7 @@ func (d *Document) GetBody() types.Body {
 	return d.body
 }
 
-// GetRelationships returns the document relationships
+// GetRelationships returns the document relationships.
 func (d *Document) GetRelationships() types.Relationships {
 	if d.closed {
 		return nil
@@ -185,7 +184,7 @@ func (d *Document) GetRelationships() types.Relationships {
 	return d.relationships
 }
 
-// GetStyles returns the document styles
+// GetStyles returns the document styles.
 func (d *Document) GetStyles() types.Styles {
 	if d.closed {
 		return nil
@@ -193,12 +192,12 @@ func (d *Document) GetStyles() types.Styles {
 	return d.styles
 }
 
-// Styles returns the document styles (alias for GetStyles for consistency)
+// Styles returns the document styles (alias for GetStyles for consistency).
 func (d *Document) Styles() types.Styles {
 	return d.GetStyles()
 }
 
-// ContentTypes returns the document content types
+// ContentTypes returns the document content types.
 func (d *Document) ContentTypes() types.ContentTypes {
 	if d.closed {
 		return nil
