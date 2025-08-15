@@ -1,4 +1,17 @@
-# Mbadocx - Go library for programmatically creating and manipulating DOCX
+<div align="center">
+  <img src="./mbadocx.svg" alt="Mbadocx - Go DOCX Library" width="250">
+  
+  
+  **Go library for creating, reading and manipulating DOCX files**
+  
+  [![Go Reference](https://pkg.go.dev/badge/github.com/yourusername/mbadocx.svg)](https://pkg.go.dev/github.com/yourusername/mbadocx)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/yourusername/mbadocx)](https://goreportcard.com/report/github.com/yourusername/mbadocx)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  
+</div>
+
+
+# Mbadocx 
 
 **Mbadocx** is a Go library for programmatically creating and manipulating Microsoft Word (DOCX) documents.  
 It provides a modular, extensible API for generating Word documents with advanced formatting, metadata, and resource management.
