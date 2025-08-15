@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./mbadocx.svg" alt="Mbadocx - Go DOCX Library" width="250">
+  <img src="./mbadocx.svg" alt="Mbadocx - Go DOCX Library" width="350">
   
   
   **Go library for creating, reading and manipulating DOCX files**
