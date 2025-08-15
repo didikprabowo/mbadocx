@@ -1,8 +1,6 @@
-# Mbadocx
+# Mbadocx - Go library for programmatically creating and manipulating DOCX
 
-## Introduction	
-
-**mbadocx** is a Go library for programmatically creating and manipulating Microsoft Word (DOCX) documents.  
+**Mbadocx** is a Go library for programmatically creating and manipulating Microsoft Word (DOCX) documents.  
 It provides a modular, extensible API for generating Word documents with advanced formatting, metadata, and resource management.
 
 ## Features
@@ -21,8 +19,8 @@ It provides a modular, extensible API for generating Word documents with advance
 - [x] Set paragraph spacing (before, after, line spacing)
 - [x] Set paragraph indentation (left, right, first line, hanging)
 - [x] Add line breaks and page breaks
-- [ ] Advanced numbering and lists (bullets, multi-level lists)
-- [ ] Extended formatting (borders, shading, tabs, page breaks)
+- [x] Advanced numbering and lists (bullets, multi-level lists)
+- [x] Extended formatting (borders, shading, tabs, page breaks)
 
 ### Styles & Layout
 - [x] Define and apply paragraph styles
@@ -73,13 +71,29 @@ go get github.com/didikprabowo/mbadocx
 ```go
 package main
 
-import "github.com/didikprabowo/mbadocx"
+import (
+	"github.com/didikprabowo/mbadocx"
+)
 
 func main() {
-    doc := mbadocx.New()
-    para := doc.GetBody().AddParagraph()
-    para.AddText("Hello, mbadocx!").SetBold(true)
-    doc.Save("output.docx")
+	// Create a new document
+	doc := mbadocx.New()
+
+	// Add a paragraph with formatted text
+	para := doc.AddParagraph()
+	para.AddText("Hello, mbadocx!").SetBold(true).SetColor("#2E86C1").SetFontSize(16)
+
+	// Add a hyperlink
+	para.AddHyperlink("Visit GitHub", "https://github.com/didikprabowo/mbadocx")
+
+	// Add a line break and another paragraph
+	para.AddLineBreak()
+	doc.AddParagraph().AddText("This is a second paragraph.")
+
+	// Save the document
+	if err := doc.Save("testdata/basic.docx"); err != nil {
+		panic(err)
+	}
 }
 ```
 
