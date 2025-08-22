@@ -76,7 +76,7 @@ A comprehensive overview of supported, planned, and unsupported features for the
 ## Tables
 ### Table Creation and Structure
 
-- [ ] Create tables with specified rows/columns
+- [x] Create tables with specified rows/columns
 - [ ] Add/remove rows and columns
 - [ ] Insert tables at specific positions
 - [ ] Delete tables
@@ -85,23 +85,23 @@ A comprehensive overview of supported, planned, and unsupported features for the
 
 ### Cell Operations
 
-- [ ] Set cell text and formatting
+- [x] Set cell text and formatting
 - [ ] Merge cells (horizontal/vertical)
 - [ ] Split cells
-- [ ] Cell alignment (text and vertical)
-- [ ] Cell margins and padding
-- [ ] Cell background colors
-- [ ] Cell borders (individual sides)
+- [x] Cell alignment (text and vertical)
+- [x] Cell margins and padding
+- [x] Cell background colors
+- [x] Cell borders (individual sides)
 
 ### Table Formatting
 
-- [ ] Table borders and styles
-- [ ] Table width (fixed and relative)
-- [ ] Column width settings
-- [ ] Row height settings
-- [ ] Table alignment on page
-- [ ] Text wrapping around tables
-- [ ] Table styles (partial)
+- [x] Table borders and styles
+- [x] Table width (fixed and relative)
+- [x] Column width settings
+- [x] Row height settings
+- [x] Table alignment on page
+- [x] Text wrapping around tables
+- [x] Table styles (partial)
 - [ ] Auto-fit options
 - [ ] Table of contents tables
 - [ ] Complex table layouts

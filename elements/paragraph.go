@@ -415,18 +415,26 @@ func (p *Paragraph) generatePropertiesXML() ([]byte, error) {
 		buf.WriteString(`/>`)
 	}
 
-	// Spacing
-	if pp.SpacingBefore != 0 || pp.SpacingAfter != 0 || pp.LineSpacing != 0 {
+	needsSpacing := pp.SpacingBefore >= 0 || pp.SpacingAfter >= 0 || pp.LineSpacing != 0
+
+	if needsSpacing {
 		buf.WriteString(`<w:spacing`)
 
-		if pp.SpacingBefore > 0 {
+		// Write before spacing (including 0 for table cells)
+		if pp.SpacingBefore == 0 {
+			buf.WriteString(` w:before="0"`)
+		} else if pp.SpacingBefore > 0 {
 			buf.WriteString(fmt.Sprintf(` w:before="%d"`, int(pp.SpacingBefore*20)))
 		}
 
-		if pp.SpacingAfter > 0 {
+		// Write after spacing (including 0 for table cells)
+		if pp.SpacingAfter == 0 {
+			buf.WriteString(` w:after="0"`)
+		} else if pp.SpacingAfter > 0 {
 			buf.WriteString(fmt.Sprintf(` w:after="%d"`, int(pp.SpacingAfter*20)))
 		}
 
+		// Line spacing
 		if pp.LineSpacing > 0 {
 			switch pp.LineSpacingRule {
 			case "exact":
@@ -434,9 +442,12 @@ func (p *Paragraph) generatePropertiesXML() ([]byte, error) {
 			case "atLeast":
 				buf.WriteString(fmt.Sprintf(` w:line="%d" w:lineRule="atLeast"`, int(pp.LineSpacing*20)))
 			default: // auto
-				// For auto, 240 = single space, 360 = 1.5, 480 = double
+				// For auto, 240 = single space, 276 = 1.15, 360 = 1.5, 480 = double
 				buf.WriteString(fmt.Sprintf(` w:line="%d" w:lineRule="auto"`, int(pp.LineSpacing*240)))
 			}
+		} else {
+			// Default line spacing if not set
+			buf.WriteString(` w:line="276" w:lineRule="auto"`)
 		}
 
 		buf.WriteString(`/>`)

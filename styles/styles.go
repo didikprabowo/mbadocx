@@ -126,7 +126,7 @@ func normalStyle() Style {
 		Name:    StyleName{Val: "Normal"},
 		StylePPr: &StylePPr{
 			SpacingStyle: &SpacingStyle{
-				After:    "160",
+				// After:    "160",
 				Line:     "259",
 				LineRule: "auto",
 			},

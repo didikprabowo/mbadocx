@@ -6,7 +6,7 @@ import "github.com/didikprabowo/mbadocx/elements"
 
 // AddParagraph
 func (d *Document) AddParagraph() *elements.Paragraph {
-	p := elements.NewParagraph(d)
-	d.body.Elements = append(d.body.Elements, p)
-	return p
+	paragraphElem := elements.NewParagraph(d)
+	d.body.AddElement(paragraphElem)
+	return paragraphElem
 }

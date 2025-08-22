@@ -36,8 +36,8 @@ type Document struct {
 
 // New creates a new empty document with default components.
 func New() *Document {
-	return &Document{
-		body:          &Body{Elements: make([]types.Element, 0)},
+	docx := &Document{
+		body:          NewBody(),
 		relationships: relationships.NewDefault(),
 		contentTypes:  contenttypes.NewDefaultContentType(),
 		metadata:      metadata.NewDefaultMetadata(),
@@ -45,6 +45,8 @@ func New() *Document {
 		openFiles:     make([]*os.File, 0),
 		closed:        false,
 	}
+
+	return docx
 }
 
 // Save writes the document to a file with the given filename.
