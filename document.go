@@ -1,3 +1,35 @@
+// Package mbadocx provides a pure-Go DOCX generator and writer.
+//
+// It is designed to create Microsoft Word .docx documents without external
+// dependencies, using only the Go standard library and custom struct models.
+//
+// # Example
+//
+//	Create a new DOCX file:
+//
+//		package main
+//
+//		import (
+//			"log"
+//
+//			"github.com/didikprabowo/mbadocx"
+//		)
+//
+//		func main() {
+//			doc := mbadocx.New()
+//			doc.AddParagraph("Hello, World!")
+//
+//			if err := doc.Save("example.docx"); err != nil {
+//				log.Fatal(err)
+//			}
+//		}
+//
+// This package is modular: subpackages such as `writer`, `elements`, and
+// `types` handle XML serialization, building elements, and struct models.
+//
+// For detailed usage and advanced composition, see the subpackage docs.
+//
+
 package mbadocx
 
 import (
