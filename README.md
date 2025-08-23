@@ -1,59 +1,81 @@
 <div align="center">
-  <img src="./mbadocx.svg" alt="Mbadocx - Go DOCX Library" width="250">
+  <img src="./mbadocx.svg" alt="Mbadocx - Go DOCX Library" width="225">
   
   
   **Go library for creating, reading and manipulating DOCX files**
   
-  [![Go Reference](https://pkg.go.dev/badge/github.com/yourusername/mbadocx.svg)](https://pkg.go.dev/github.com/yourusername/mbadocx)
-  [![Go Report Card](https://goreportcard.com/badge/github.com/yourusername/mbadocx)](https://goreportcard.com/report/github.com/yourusername/mbadocx)
+ [![Go Reference](https://pkg.go.dev/badge/github.com/didikprabowo/mbadocx.svg)](https://pkg.go.dev/github.com/didikprabowo/mbadocx)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/didikprabowo/mbadocx)](https://goreportcard.com/report/github.com/didikprabowo/mbadocx)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   
 </div>
 
-# Mbadocx 
+## Overview
 
 **Mbadocx** is a Go library for programmatically creating and manipulating Microsoft Word (DOCX) documents.  
 It provides a modular, extensible API for generating Word documents with advanced formatting, metadata, and resource management.
 
-## Features
+### Key Features
 
-The feature able to see on [features](./docs/features_documents.md).
+- ✅ **Document Creation** - Create new DOCX documents from scratch
+- ✅ **Text Formatting** - Bold, italic, colors, font sizes
+- ✅ **Paragraphs** - Full paragraph management and styling
+- ✅ **Tables** - Create and format tables with rows and cells
+- ✅ **Hyperlinks** - Add clickable links to documents
+- ✅ **Line Breaks** - Control document flow
+- ✅ **Fluent API** - Chainable methods for clean code
+- ✅ **Pure Go** - No external dependencies required
 
+### Why mbadocx?
+
+- Simple API - Intuitive and easy to learn
+- Idiomatic Go - Follows Go best practices and conventions
+- Lightweight - Minimal overhead and dependencies
+- Extensible - Modular architecture for easy extension
+- MIT Licensed - Use freely in commercial and open-source projects
 
 ## Installation
 
-```sh
+### Requirements
+- Go 1.16 or higher
+- No external dependencies required
+
+### Install via go get
+
+```bash
 go get github.com/didikprabowo/mbadocx
 ```
 
-## Usage Example
+### Import in your code
+
+```go
+import "github.com/didikprabowo/mbadocx"
+```
+
+## Quick Start
+
+Here's a simple example to get you started:
 
 ```go
 package main
 
 import (
-	"github.com/didikprabowo/mbadocx"
+    "log"
+    "github.com/didikprabowo/mbadocx"
 )
 
 func main() {
-	// Create a new document
-	doc := mbadocx.New()
-
-	// Add a paragraph with formatted text
-	para := doc.AddParagraph()
-	para.AddText("Hello, mbadocx!").SetBold(true).SetColor("#2E86C1").SetFontSize(16)
-
-	// Add a hyperlink
-	para.AddHyperlink("Visit GitHub", "https://github.com/didikprabowo/mbadocx")
-
-	// Add a line break and another paragraph
-	para.AddLineBreak()
-	doc.AddParagraph().AddText("This is a second paragraph.")
-
-	// Save the document
-	if err := doc.Save("testdata/basic.docx"); err != nil {
-		panic(err)
-	}
+    // Create a new document
+    doc := mbadocx.New()
+    
+    // Add a paragraph with formatted text
+    para := doc.AddParagraph()
+    para.AddText("Hello, World!").SetBold(true).SetFontSize(16)
+    
+    // Save the document
+    if err := doc.Save("hello.docx"); err != nil {
+        log.Fatal(err)
+    }
 }
 ```
 
