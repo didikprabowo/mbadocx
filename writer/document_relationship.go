@@ -28,7 +28,7 @@ func (d *DocumentRelationship) Path() string {
 func (d *DocumentRelationship) Byte() ([]byte, error) {
 	var buf bytes.Buffer
 
-	rels := d.GetRelationships()
+	rels := d.Relationships()
 	docXML, err := rels.DocumentXML()
 	if err != nil {
 		return nil, err

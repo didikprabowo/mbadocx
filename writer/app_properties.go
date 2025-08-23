@@ -113,7 +113,7 @@ func (ap *AppProperties) WriteTo(w io.Writer) (int64, error) {
 // countCharactersWithSpaces returns total character count including spaces
 func (ap *AppProperties) countCharactersWithSpaces() int {
 	total := 0
-	for _, elem := range ap.document.GetBody().GetElements() {
+	for _, elem := range ap.document.Body().GetElements() {
 		text := ap.getElementText(elem)
 		for _, r := range text {
 			if r != '\n' && r != '\r' {
@@ -127,7 +127,7 @@ func (ap *AppProperties) countCharactersWithSpaces() int {
 // countParagraphs returns the number of paragraph elements
 func (ap *AppProperties) countParagraphs() int {
 	count := 0
-	for _, elem := range ap.document.GetBody().GetElements() {
+	for _, elem := range ap.document.Body().GetElements() {
 		if elem.Type() == "paragraph" {
 			count++
 		}
@@ -138,7 +138,7 @@ func (ap *AppProperties) countParagraphs() int {
 // countWords estimates the number of words in the document
 func (ap *AppProperties) countWords() int {
 	total := 0
-	for _, elem := range ap.document.GetBody().GetElements() {
+	for _, elem := range ap.document.Body().GetElements() {
 		text := ap.getElementText(elem)
 		if text != "" {
 			total += len(splitWords(text))
@@ -150,7 +150,7 @@ func (ap *AppProperties) countWords() int {
 // countLines estimates number of lines based on character length per paragraph
 func (ap *AppProperties) countLines() int {
 	lines := 0
-	for _, elem := range ap.document.GetBody().GetElements() {
+	for _, elem := range ap.document.Body().GetElements() {
 		if elem.Type() == "paragraph" {
 			lines++
 			text := ap.getElementText(elem)
@@ -168,7 +168,7 @@ func (ap *AppProperties) countLines() int {
 // countCharacters returns total non-whitespace character count
 func (ap *AppProperties) countCharacters() int {
 	total := 0
-	for _, elem := range ap.document.GetBody().GetElements() {
+	for _, elem := range ap.document.Body().GetElements() {
 		text := ap.getElementText(elem)
 		for _, r := range text {
 			if r != ' ' && r != '\t' && r != '\n' && r != '\r' {

@@ -9,8 +9,8 @@ import (
 
 // DocumentInterface provides access to document data for the writer
 type Document interface {
-	GetBody() Body
-	GetRelationships() Relationships
+	Body() Body
+	Relationships() Relationships
 	Metadata() Metadata
 	Styles() Styles
 	ContentTypes() ContentTypes

@@ -76,7 +76,7 @@ func (d *Document) Byte() ([]byte, error) {
 	// Write <w:body>
 	buf.WriteString(indent + "<w:body>\n")
 
-	for _, el := range d.document.GetBody().GetElements() {
+	for _, el := range d.document.Body().GetElements() {
 		xmlData, err := el.XML()
 		if err != nil {
 			return nil, fmt.Errorf("serialize element: %w", err)

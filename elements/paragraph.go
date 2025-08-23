@@ -65,7 +65,7 @@ func (pb *Paragraph) AddHyperlink(text, url string) *Paragraph {
 	h := NewHyperlink(text, url)
 
 	if h.Typ == HyperlinkTypeExternal {
-		rel := pb.document.GetRelationships().GetOrCreateHyperlink(url)
+		rel := pb.document.Relationships().GetOrCreateHyperlink(url)
 		h.ID = rel.ID
 	}
 

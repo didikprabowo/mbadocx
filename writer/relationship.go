@@ -29,7 +29,7 @@ func (r *Relationships) Path() string {
 
 // Byte returns the full XML content for the _rels/.rels part.
 func (r *Relationships) Byte() ([]byte, error) {
-	rels := r.GetRelationships()
+	rels := r.Relationships()
 
 	relsXML, err := rels.PackageXML()
 	if err != nil {

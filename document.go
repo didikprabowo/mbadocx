@@ -202,33 +202,28 @@ func (d *Document) Metadata() types.Metadata {
 	return d.metadata
 }
 
-// GetBody returns the document body.
-func (d *Document) GetBody() types.Body {
+// Body returns the document body.
+func (d *Document) Body() types.Body {
 	if d.closed {
 		return nil
 	}
 	return d.body
 }
 
-// GetRelationships returns the document relationships.
-func (d *Document) GetRelationships() types.Relationships {
+// Relationships returns the document relationships.
+func (d *Document) Relationships() types.Relationships {
 	if d.closed {
 		return nil
 	}
 	return d.relationships
 }
 
-// GetStyles returns the document styles.
-func (d *Document) GetStyles() types.Styles {
+// Styles returns the document styles (alias for GetStyles for consistency).
+func (d *Document) Styles() types.Styles {
 	if d.closed {
 		return nil
 	}
 	return d.styles
-}
-
-// Styles returns the document styles (alias for GetStyles for consistency).
-func (d *Document) Styles() types.Styles {
-	return d.GetStyles()
 }
 
 // ContentTypes returns the document content types.
