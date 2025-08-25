@@ -21,6 +21,7 @@ It provides a modular, extensible API for generating Word documents with advance
 - ✅ **Text Formatting** - Bold, italic, colors, font sizes
 - ✅ **Paragraphs** - Full paragraph management and styling
 - ✅ **Tables** - Create and format tables with rows and cells
+- ✅ **Image** - Add image and set properties
 - ✅ **Hyperlinks** - Add clickable links to documents
 - ✅ **Line Breaks** - Control document flow
 - ✅ **Fluent API** - Chainable methods for clean code
