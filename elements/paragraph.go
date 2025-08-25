@@ -53,6 +53,11 @@ func (p *Paragraph) AddRun() *Run {
 	return r
 }
 
+// AddChildren
+func (p *Paragraph) AddChildren(child ParagraphChild) {
+	p.Children = append(p.Children, child)
+}
+
 // AddText is a convenience method to add a text run
 func (p *Paragraph) AddText(text string) *Run {
 	r := p.AddRun()

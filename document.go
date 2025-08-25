@@ -57,6 +57,7 @@ type Document struct {
 
 	// Metadata
 	metadata *metadata.Metadata // Document metadata (author, timestamps, etc.)
+	media    *Media
 
 	// Internal state
 	mu     sync.RWMutex // Mutex for thread safety
@@ -75,6 +76,7 @@ func New() *Document {
 		metadata:      metadata.NewDefaultMetadata(),
 		styles:        styles.NewDefaultStyles(),
 		openFiles:     make([]*os.File, 0),
+		media:         &Media{},
 		closed:        false,
 	}
 
@@ -232,4 +234,9 @@ func (d *Document) ContentTypes() types.ContentTypes {
 		return nil
 	}
 	return d.contentTypes
+}
+
+// Media
+func (d *Document) Media() []types.Media {
+	return d.media.Media
 }

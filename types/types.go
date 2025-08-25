@@ -14,6 +14,15 @@ type Document interface {
 	Metadata() Metadata
 	Styles() Styles
 	ContentTypes() ContentTypes
+	Media() []Media
+}
+
+type Media interface {
+	RelID() string
+	RelType() string
+	TargetPath() string
+	FileName() string
+	RawContent() []byte
 }
 
 type ContentTypes interface {
@@ -42,4 +51,5 @@ type Relationships interface {
 	PackageXML() ([]byte, error)
 	DocumentXML() ([]byte, error)
 	GetOrCreateHyperlink(url string) *relationships.Relationship
+	AddImage(filename string) *relationships.Relationship
 }
