@@ -44,7 +44,7 @@ func (d *DocumentRelationship) Byte() ([]byte, error) {
 	buf.Write(docXML)
 
 	log.Printf("'%s' has been created.\n", d.Path())
-	// log.Print(buf.String())
+	log.Print(buf.String())
 
 	return buf.Bytes(), nil
 }

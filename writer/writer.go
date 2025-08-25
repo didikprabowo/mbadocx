@@ -22,6 +22,7 @@ import (
 	"compress/flate"
 	"fmt"
 	"io"
+	"log"
 	"time"
 
 	"github.com/didikprabowo/mbadocx/types"
@@ -74,6 +75,11 @@ func (w *Writer) writeToZip(part zipWritable) error {
 	return err
 }
 
+func (w *Writer) writeFile(name string, data []byte) {
+	writer, _ := w.zipWriter.Create(name)
+	writer.Write(data)
+}
+
 // Write writes the document to an io.Writer
 func (w *Writer) Write(writer io.Writer) error {
 	w.zipWriter = zip.NewWriter(writer)
@@ -105,6 +111,13 @@ func (w *Writer) Write(writer io.Writer) error {
 		if err := w.writeToZip(part); err != nil {
 			return fmt.Errorf("write %s: %w", part.Path(), err)
 		}
+	}
+
+	// Write file
+	// word/media/*
+	for _, media := range w.document.Media() {
+		w.writeFile(media.TargetPath()+media.FileName(), media.RawContent())
+		log.Printf("'%s' has been created.\n", media.TargetPath()+media.FileName())
 	}
 
 	return nil
