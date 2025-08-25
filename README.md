@@ -32,6 +32,7 @@ It provides a modular, extensible API for generating Word documents with advance
 - [List Numbering](./example/list)
 - [Text Formating](./example/text-formatting)
 - [Tables](./example/table)
+- [Image](./example/image)
 
 ### Why mbadocx?
 
