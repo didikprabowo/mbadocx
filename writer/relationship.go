@@ -1,7 +1,6 @@
 package writer
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -29,22 +28,33 @@ func (r *Relationships) Path() string {
 
 // Byte returns the full XML content for the _rels/.rels part.
 func (r *Relationships) Byte() ([]byte, error) {
-	rels := r.Relationships()
+	buf := getBuffer()
+	defer putBuffer(buf)
 
+	buf.WriteString(xml.Header)
+
+	enc := xml.NewEncoder(buf)
+	enc.Indent("", "  ")
+
+	rels := r.Relationships()
 	relsXML, err := rels.PackageXML()
 	if err != nil {
 		return nil, fmt.Errorf("generating package relationships XML: %w", err)
 	}
 
-	var buf bytes.Buffer
-
-	buf.WriteString(xml.Header)
+	// Write the raw XML data
+	if err := enc.Flush(); err != nil {
+		return nil, err
+	}
 	buf.Write(relsXML)
 
 	log.Printf("'%s' has been created.\n", r.Path())
 	// log.Print(buf.String())
 
-	return buf.Bytes(), nil
+	// Make a copy of the bytes before returning the buffer to the pool
+	result := make([]byte, buf.Len())
+	copy(result, buf.Bytes())
+	return result, nil
 }
 
 // WriteTo writes the XML content to the given writer.

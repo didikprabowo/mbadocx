@@ -1,7 +1,8 @@
 package writer
 
 import (
-	"bytes"
+	"encoding/xml"
+	"fmt"
 	"io"
 	"log"
 
@@ -9,49 +10,48 @@ import (
 )
 
 type DocumentRelationship struct {
-	types.Document
+	document types.Document
 }
 
-var _ zipWritable = (*DocumentRelationship)(nil)
-
-// newDocument wraps types.Document in writer.Document
-func newDocumentRelationship(doc types.Document) *DocumentRelationship {
-	return &DocumentRelationship{doc}
+func newDocumentRelationship(document types.Document) *DocumentRelationship {
+	return &DocumentRelationship{document: document}
 }
 
-// Path returns the path inside the .docx ZIP file
-func (d *DocumentRelationship) Path() string {
+func (dr *DocumentRelationship) Path() string {
 	return "word/_rels/document.xml.rels"
 }
 
 // Byte generates the XML content for the document
-func (d *DocumentRelationship) Byte() ([]byte, error) {
-	var buf bytes.Buffer
+func (dr *DocumentRelationship) Byte() ([]byte, error) {
+	buf := getBuffer()
+	defer putBuffer(buf)
 
-	rels := d.Relationships()
+	buf.WriteString(xml.Header)
+
+	// Get relationships and generate document relationships XML
+	rels := dr.document.Relationships()
 	docXML, err := rels.DocumentXML()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("generating document relationships XML: %w", err)
 	}
 
-	// Add XML declaration if missing
-	if !bytes.HasPrefix(docXML, []byte("<?xml")) {
-		buf.Write([]byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`))
-		buf.WriteByte('\n')
-	}
-
-	// Append the actual document XML
+	// Write the raw XML data
 	buf.Write(docXML)
 
-	log.Printf("'%s' has been created.\n", d.Path())
-	log.Print(buf.String())
+	log.Printf("'%s' has been created.\n", dr.Path())
+	// log.Print(buf.String())
 
-	return buf.Bytes(), nil
+	// Make a copy of the bytes before returning the buffer to the pool
+	result := make([]byte, buf.Len())
+	copy(result, buf.Bytes())
+	return result, nil
 }
 
+var _ zipWritable = (*DocumentRelationship)(nil)
+
 // WriteTo writes the document content to the given writer (implements io.WriterTo)
-func (d *DocumentRelationship) WriteTo(w io.Writer) (int64, error) {
-	content, err := d.Byte()
+func (dr *DocumentRelationship) WriteTo(w io.Writer) (int64, error) {
+	content, err := dr.Byte()
 	if err != nil {
 		return 0, err
 	}

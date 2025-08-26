@@ -21,7 +21,6 @@
 package writer
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -80,8 +79,8 @@ func (cp *CoreProperties) Path() string {
 	return "docProps/core.xml"
 }
 
-func (cr *CoreProperties) Byte() ([]byte, error) {
-	metadata := cr.document.Metadata().Get()
+func (cp *CoreProperties) Byte() ([]byte, error) {
+	metadata := cp.document.Metadata().Get()
 	props := &CorePropertiesXML{
 		XmlnsCp:       "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
 		XmlnsDc:       "http://purl.org/dc/elements/1.1/",
@@ -113,26 +112,27 @@ func (cr *CoreProperties) Byte() ([]byte, error) {
 		Value: formatDateTime(metadata.Modified),
 	}
 
-	cr.CorePropertiesXML = props
+	cp.CorePropertiesXML = props
 
-	var buf bytes.Buffer
+	buf := getBuffer()
+	defer putBuffer(buf)
 
-	// Write XML declaration
 	buf.WriteString(xml.Header)
 
-	// Encode the struct
-	enc := xml.NewEncoder(&buf)
+	enc := xml.NewEncoder(buf)
 	enc.Indent("", "  ")
 
-	if err := enc.Encode(cr.CorePropertiesXML); err != nil {
-		return nil, fmt.Errorf("encoding ContentTypes XML: %w", err)
+	if err := enc.Encode(cp.CorePropertiesXML); err != nil {
+		return nil, fmt.Errorf("encoding CoreProperties XML: %w", err)
 	}
 
-	log.Printf("'%s' has been created.\n", cr.Path())
+	log.Printf("'%s' has been created.\n", cp.Path())
 	// log.Print(buf.String())
 
-	return buf.Bytes(), nil
-
+	// Make a copy of the bytes before returning the buffer to the pool
+	result := make([]byte, buf.Len())
+	copy(result, buf.Bytes())
+	return result, nil
 }
 
 func (cp *CoreProperties) WriteTo(w io.Writer) (int64, error) {

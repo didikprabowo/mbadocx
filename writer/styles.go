@@ -1,7 +1,6 @@
 package writer
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -28,25 +27,27 @@ func (swr *StylesWr) Path() string {
 }
 
 // Byte
-func (swr *StylesWr) Byte() ([]byte, error) {
-	var buf bytes.Buffer
+func (s *StylesWr) Byte() ([]byte, error) {
+	buf := getBuffer()
+	defer putBuffer(buf)
 
-	// Write XML declaration
 	buf.WriteString(xml.Header)
 
-	// Encode the struct
-	enc := xml.NewEncoder(&buf)
+	enc := xml.NewEncoder(buf)
 	enc.Indent("", "  ")
 
-	styles := swr.document.Styles().Get()
+	styles := s.document.Styles().Get()
 	if err := enc.Encode(styles); err != nil {
-		return nil, fmt.Errorf("encoding ContentTypes XML: %w", err)
+		return nil, fmt.Errorf("encoding Styles XML: %w", err)
 	}
 
-	log.Printf("'%s' has been created.\n", swr.Path())
+	log.Printf("'%s' has been created.\n", s.Path())
 	// log.Print(buf.String())
 
-	return buf.Bytes(), nil
+	// Make a copy of the bytes before returning the buffer to the pool
+	result := make([]byte, buf.Len())
+	copy(result, buf.Bytes())
+	return result, nil
 }
 
 // WriteTo

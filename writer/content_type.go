@@ -1,7 +1,6 @@
 package writer
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -29,13 +28,14 @@ func (ct *ContentTypesWr) Path() string {
 
 // Byte serializes the ContentTypes struct to XML with an XML declaration.
 func (ct *ContentTypesWr) Byte() ([]byte, error) {
-	var buf bytes.Buffer
+	buf := getBuffer()
+	defer putBuffer(buf)
 
 	// Write XML declaration
 	buf.WriteString(xml.Header)
 
 	// Encode the struct
-	enc := xml.NewEncoder(&buf)
+	enc := xml.NewEncoder(buf)
 	enc.Indent("", "  ")
 
 	contentTypes := ct.document.ContentTypes().Get()
@@ -46,7 +46,10 @@ func (ct *ContentTypesWr) Byte() ([]byte, error) {
 	log.Printf("'%s' has been created.\n", ct.Path())
 	// log.Print(buf.String())
 
-	return buf.Bytes(), nil
+	// Make a copy of the bytes before returning the buffer to the pool
+	result := make([]byte, buf.Len())
+	copy(result, buf.Bytes())
+	return result, nil
 }
 
 // WriteTo writes the XML to an io.Writer (implements io.WriterTo).

@@ -5,7 +5,29 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strings"
+	"sync"
+
+	"github.com/didikprabowo/mbadocx/types"
 )
+
+// bufferPool provides a pool of reusable byte buffers to reduce memory allocations
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		return &bytes.Buffer{}
+	},
+}
+
+// getBuffer gets a buffer from the pool
+func getBuffer() *bytes.Buffer {
+	return bufferPool.Get().(*bytes.Buffer)
+}
+
+// putBuffer returns a buffer to the pool after resetting it
+func putBuffer(buf *bytes.Buffer) {
+	buf.Reset()
+	bufferPool.Put(buf)
+}
 
 var _ zipWritable = (*NumberingDefinitions)(nil)
 
@@ -13,6 +35,8 @@ var _ zipWritable = (*NumberingDefinitions)(nil)
 type NumberingDefinitions struct {
 	AbstractNums []AbstractNum
 	Nums         []Num
+	document     types.Document // Add document reference for lazy loading
+	initialized  bool           // Track if numbering has been initialized
 }
 
 // AbstractNum defines an abstract numbering definition
@@ -52,12 +76,57 @@ type LevelOverride struct {
 	StartOverride int
 }
 
-// NewNumberingDefinitions creates default numbering definitions
+// NewNumberingDefinitions creates numbering definitions with lazy loading
 func newNumberingDefinitions() *NumberingDefinitions {
 	return &NumberingDefinitions{
-		AbstractNums: createDefaultAbstractNums(),
-		Nums:         createDefaultNums(),
+		initialized: false,
 	}
+}
+
+// NewNumberingDefinitionsForDocument creates numbering definitions with document reference
+func newNumberingDefinitionsForDocument(doc types.Document) *NumberingDefinitions {
+	return &NumberingDefinitions{
+		document:    doc,
+		initialized: false,
+	}
+}
+
+// ensureInitialized initializes numbering definitions only when needed
+func (num *NumberingDefinitions) ensureInitialized() {
+	if num.initialized {
+		return
+	}
+	
+	// Only create default numbering if the document actually uses lists
+	if num.document != nil && !num.hasNumberedElements() {
+		// Create minimal numbering for compatibility
+		num.AbstractNums = []AbstractNum{}
+		num.Nums = []Num{}
+	} else {
+		// Create full default numbering
+		num.AbstractNums = createDefaultAbstractNums()
+		num.Nums = createDefaultNums()
+	}
+	
+	num.initialized = true
+}
+
+// hasNumberedElements checks if the document contains any numbered or bulleted elements
+func (num *NumberingDefinitions) hasNumberedElements() bool {
+	if num.document == nil {
+		return true // Default to creating full numbering if no document reference
+	}
+	
+	// Check document elements for list usage
+	for _, elem := range num.document.Body().GetElements() {
+		// This would need to be implemented based on your element types
+		// For now, we'll assume lists might be used
+		_ = elem
+	}
+	
+	// For safety, assume numbering might be needed
+	// In a real implementation, you'd check the actual element types
+	return true
 }
 
 func createDefaultAbstractNums() []AbstractNum {
@@ -302,7 +371,25 @@ func (num *NumberingDefinitions) Path() string {
 }
 
 func (num *NumberingDefinitions) Byte() ([]byte, error) {
-	var buf bytes.Buffer
+	// Ensure numbering is initialized before generating XML
+	num.ensureInitialized()
+	
+	// If no numbering definitions are needed, return minimal XML
+	if len(num.AbstractNums) == 0 && len(num.Nums) == 0 {
+		buf := getBuffer()
+		defer putBuffer(buf)
+		
+		buf.WriteString(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`)
+		buf.WriteString("\n")
+		buf.WriteString(`<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`)
+		
+		result := make([]byte, buf.Len())
+		copy(result, buf.Bytes())
+		return result, nil
+	}
+	
+	buf := getBuffer()
+	defer putBuffer(buf)
 
 	// XML declaration
 	buf.WriteString(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`)
@@ -332,7 +419,10 @@ func (num *NumberingDefinitions) Byte() ([]byte, error) {
 	log.Printf("'%s' has been created.\n", num.Path())
 	// log.Print(buf.String())
 
-	return buf.Bytes(), nil
+	// Make a copy of the bytes before returning the buffer to the pool
+	result := make([]byte, buf.Len())
+	copy(result, buf.Bytes())
+	return result, nil
 }
 
 // WriteTo writes the XML content to the given writer.
@@ -348,135 +438,141 @@ func (num *NumberingDefinitions) WriteTo(w io.Writer) (int64, error) {
 
 // GenerateXML generates XML for an abstract numbering definition
 func (an *AbstractNum) GenerateXML() string {
-	var buf bytes.Buffer
+	var builder strings.Builder
+	// Pre-allocate capacity to reduce reallocations
+	builder.Grow(1024)
 
-	buf.WriteString(fmt.Sprintf(`  <w:abstractNum w:abstractNumId="%d">`, an.ID))
-	buf.WriteString("\n")
+	builder.WriteString(fmt.Sprintf(`  <w:abstractNum w:abstractNumId="%d">`, an.ID))
+	builder.WriteString("\n")
 
 	// Multi-level type
 	if an.MultiLevel {
-		buf.WriteString(`    <w:multiLevelType w:val="multilevel"/>`)
+		builder.WriteString(`    <w:multiLevelType w:val="multilevel"/>`)
 	} else {
-		buf.WriteString(`    <w:multiLevelType w:val="singleLevel"/>`)
+		builder.WriteString(`    <w:multiLevelType w:val="singleLevel"/>`)
 	}
-	buf.WriteString("\n")
+	builder.WriteString("\n")
 
 	// Name
 	if an.Name != "" {
-		buf.WriteString(fmt.Sprintf(`    <w:name w:val="%s"/>`, an.Name))
-		buf.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`    <w:name w:val="%s"/>`, an.Name))
+		builder.WriteString("\n")
 	}
 
 	// Generate levels
 	for _, level := range an.Levels {
-		buf.WriteString(level.GenerateXML())
-		buf.WriteString("\n")
+		builder.WriteString(level.GenerateXML())
+		builder.WriteString("\n")
 	}
 
-	buf.WriteString(`  </w:abstractNum>`)
+	builder.WriteString(`  </w:abstractNum>`)
 
-	return buf.String()
+	return builder.String()
 }
 
 // GenerateXML generates XML for a numbering level
 func (l *Level) GenerateXML() string {
-	var buf bytes.Buffer
+	var builder strings.Builder
+	// Pre-allocate capacity to reduce reallocations
+	builder.Grow(512)
 
-	buf.WriteString(fmt.Sprintf(`    <w:lvl w:ilvl="%d">`, l.Level))
-	buf.WriteString("\n")
+	builder.WriteString(fmt.Sprintf(`    <w:lvl w:ilvl="%d">`, l.Level))
+	builder.WriteString("\n")
 
 	// Start value
-	buf.WriteString(fmt.Sprintf(`      <w:start w:val="%d"/>`, l.Start))
-	buf.WriteString("\n")
+	builder.WriteString(fmt.Sprintf(`      <w:start w:val="%d"/>`, l.Start))
+	builder.WriteString("\n")
 
 	// Number format
 	if l.NumFormat == "bullet" {
-		buf.WriteString(`      <w:numFmt w:val="bullet"/>`)
-		buf.WriteString("\n")
+		builder.WriteString(`      <w:numFmt w:val="bullet"/>`)
+		builder.WriteString("\n")
 
 		// Level text for bullet
-		buf.WriteString(fmt.Sprintf(`      <w:lvlText w:val="%s"/>`, l.BulletChar))
-		buf.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`      <w:lvlText w:val="%s"/>`, l.BulletChar))
+		builder.WriteString("\n")
 
 		// Font for bullet
 		if l.Font != "" {
-			buf.WriteString(`      <w:rPr>`)
-			buf.WriteString("\n")
-			buf.WriteString(fmt.Sprintf(`        <w:rFonts w:ascii="%s" w:hAnsi="%s" w:hint="default"/>`, l.Font, l.Font))
-			buf.WriteString("\n")
-			buf.WriteString(`      </w:rPr>`)
-			buf.WriteString("\n")
+			builder.WriteString(`      <w:rPr>`)
+			builder.WriteString("\n")
+			builder.WriteString(fmt.Sprintf(`        <w:rFonts w:ascii="%s" w:hAnsi="%s" w:hint="default"/>`, l.Font, l.Font))
+			builder.WriteString("\n")
+			builder.WriteString(`      </w:rPr>`)
+			builder.WriteString("\n")
 		}
 	} else {
 		// Number format for numbered lists
-		buf.WriteString(fmt.Sprintf(`      <w:numFmt w:val="%s"/>`, l.NumFormat))
-		buf.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`      <w:numFmt w:val="%s"/>`, l.NumFormat))
+		builder.WriteString("\n")
 
 		// Level text (e.g., "%1.", "%1.%2")
-		buf.WriteString(fmt.Sprintf(`      <w:lvlText w:val="%s"/>`, l.LevelText))
-		buf.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`      <w:lvlText w:val="%s"/>`, l.LevelText))
+		builder.WriteString("\n")
 
 		// Legal numbering
 		if l.IsLegalNum {
-			buf.WriteString(`      <w:isLgl/>`)
-			buf.WriteString("\n")
+			builder.WriteString(`      <w:isLgl/>`)
+			builder.WriteString("\n")
 		}
 	}
 
 	// Level justification
-	buf.WriteString(fmt.Sprintf(`      <w:lvlJc w:val="%s"/>`, l.LevelJc))
-	buf.WriteString("\n")
+	builder.WriteString(fmt.Sprintf(`      <w:lvlJc w:val="%s"/>`, l.LevelJc))
+	builder.WriteString("\n")
 
 	// Paragraph properties
-	buf.WriteString(`      <w:pPr>`)
-	buf.WriteString("\n")
+	builder.WriteString(`      <w:pPr>`)
+	builder.WriteString("\n")
 
 	// Indentation
-	buf.WriteString(fmt.Sprintf(`        <w:ind w:left="%d" w:hanging="%d"/>`, l.IndentLeft, l.IndentHanging))
-	buf.WriteString("\n")
+	builder.WriteString(fmt.Sprintf(`        <w:ind w:left="%d" w:hanging="%d"/>`, l.IndentLeft, l.IndentHanging))
+	builder.WriteString("\n")
 
-	buf.WriteString(`      </w:pPr>`)
-	buf.WriteString("\n")
+	builder.WriteString(`      </w:pPr>`)
+	builder.WriteString("\n")
 
 	// Suffix (tab, space, or nothing)
 	if l.Suffix != "" {
-		buf.WriteString(fmt.Sprintf(`      <w:suff w:val="%s"/>`, l.Suffix))
-		buf.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`      <w:suff w:val="%s"/>`, l.Suffix))
+		builder.WriteString("\n")
 	}
 
 	// Paragraph style reference
 	if l.PStyle != "" {
-		buf.WriteString(fmt.Sprintf(`      <w:pStyle w:val="%s"/>`, l.PStyle))
-		buf.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`      <w:pStyle w:val="%s"/>`, l.PStyle))
+		builder.WriteString("\n")
 	}
 
-	buf.WriteString(`    </w:lvl>`)
+	builder.WriteString(`    </w:lvl>`)
 
-	return buf.String()
+	return builder.String()
 }
 
 // GenerateXML generates XML for a concrete numbering instance
 func (n *Num) GenerateXML() string {
-	var buf bytes.Buffer
+	var builder strings.Builder
+	// Pre-allocate capacity to reduce reallocations
+	builder.Grow(256)
 
-	buf.WriteString(fmt.Sprintf(`  <w:num w:numId="%d">`, n.ID))
-	buf.WriteString("\n")
+	builder.WriteString(fmt.Sprintf(`  <w:num w:numId="%d">`, n.ID))
+	builder.WriteString("\n")
 
 	// Reference to abstract numbering
-	buf.WriteString(fmt.Sprintf(`    <w:abstractNumId w:val="%d"/>`, n.AbstractID))
-	buf.WriteString("\n")
+	builder.WriteString(fmt.Sprintf(`    <w:abstractNumId w:val="%d"/>`, n.AbstractID))
+	builder.WriteString("\n")
 
 	// Level overrides
 	for _, override := range n.Overrides {
-		buf.WriteString(fmt.Sprintf(`    <w:lvlOverride w:ilvl="%d">`, override.Level))
-		buf.WriteString("\n")
-		buf.WriteString(fmt.Sprintf(`      <w:startOverride w:val="%d"/>`, override.StartOverride))
-		buf.WriteString("\n")
-		buf.WriteString(`    </w:lvlOverride>`)
-		buf.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`    <w:lvlOverride w:ilvl="%d">`, override.Level))
+		builder.WriteString("\n")
+		builder.WriteString(fmt.Sprintf(`      <w:startOverride w:val="%d"/>`, override.StartOverride))
+		builder.WriteString("\n")
+		builder.WriteString(`    </w:lvlOverride>`)
+		builder.WriteString("\n")
 	}
 
-	buf.WriteString(`  </w:num>`)
+	builder.WriteString(`  </w:num>`)
 
-	return buf.String()
+	return builder.String()
 }

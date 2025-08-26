@@ -1,7 +1,6 @@
 package writer
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -60,33 +59,42 @@ func (ap *AppProperties) Path() string {
 
 // Byte generates the XML content for docProps/app.xml
 func (ap *AppProperties) Byte() ([]byte, error) {
-	metadata := ap.document.Metadata().Get()
+	// Get document statistics
+	paragraphs := ap.countParagraphs()
+	words := ap.countWords()
+	chars := ap.countCharacters()
+	charsWithSpaces := ap.countCharactersWithSpaces()
+	lines := ap.countLines()
+	pages := ap.calculatePages(words, lines)
 
 	props := &AppPropertiesXML{
+		XMLName: xml.Name{Local: "Properties"},
 		Xmlns:   "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties",
 		XmlnsVt: "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes",
 
-		Application:          "Go DOCX Library",
-		AppVersion:           "1.0",
+		Application:          "mbadocx",
+		AppVersion:           "1.0.0000",
 		DocSecurity:          0,
-		Lines:                ap.countLines(),
-		Paragraphs:           ap.countParagraphs(),
-		Words:                ap.countWords(),
-		Characters:           ap.countCharacters(),
-		CharactersWithSpaces: ap.countCharactersWithSpaces(),
-		Pages:                1, // Approximation; Word will recalculate
-		Company:              metadata.Company,
-		Manager:              metadata.Manager,
+		Lines:                lines,
+		Paragraphs:           paragraphs,
+		Words:                words,
+		Characters:           chars,
+		CharactersWithSpaces: charsWithSpaces,
+		Pages:                pages,
+		Company:              "", // Default empty - could be made configurable
+		Manager:              "", // Default empty - could be made configurable
 		LinksUpToDate:        false,
 		ScaleCrop:            false,
 		SharedDoc:            false,
 		HyperlinksChanged:    false,
 	}
 
-	var buf bytes.Buffer
+	buf := getBuffer()
+	defer putBuffer(buf)
+	
 	buf.WriteString(xml.Header)
 
-	enc := xml.NewEncoder(&buf)
+	enc := xml.NewEncoder(buf)
 	enc.Indent("", "  ")
 
 	if err := enc.Encode(props); err != nil {
@@ -96,7 +104,10 @@ func (ap *AppProperties) Byte() ([]byte, error) {
 	log.Printf("'%s' has been created.\n", ap.Path())
 	// log.Print(buf.String())
 
-	return buf.Bytes(), nil
+	// Make a copy of the bytes before returning the buffer to the pool
+	result := make([]byte, buf.Len())
+	copy(result, buf.Bytes())
+	return result, nil
 }
 
 // WriteTo writes the XML to an io.Writer (implements io.WriterTo).
@@ -226,4 +237,24 @@ func isWordChar(r rune) bool {
 		(r >= 'A' && r <= 'Z') ||
 		(r >= '0' && r <= '9') ||
 		r == '\'' || r == '-' || r == '_'
+}
+
+// calculatePages estimates the number of pages based on words and lines
+func (ap *AppProperties) calculatePages(words, lines int) int {
+	// Simple estimation: assume ~250 words per page or ~40 lines per page
+	pagesFromWords := (words + 249) / 250  // Round up
+	pagesFromLines := (lines + 39) / 40    // Round up
+	
+	// Use the larger estimate
+	pages := pagesFromWords
+	if pagesFromLines > pages {
+		pages = pagesFromLines
+	}
+	
+	// Minimum 1 page
+	if pages < 1 {
+		pages = 1
+	}
+	
+	return pages
 }
