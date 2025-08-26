@@ -26,6 +26,7 @@ It provides a modular, extensible API for generating Word documents with advance
 - ✅ **Line Breaks** - Control document flow
 - ✅ **Fluent API** - Chainable methods for clean code
 - ✅ **Pure Go** - No external dependencies required
+- ⬜ Headers/Footers (if not implemented)
 
 ### Examples
 - [Basic Document](./example/basic)
@@ -86,6 +87,94 @@ func main() {
     }
 }
 ```
+
+### Creating Tables
+
+```go
+package main
+
+import (
+    "log"
+
+    "github.com/didikprabowo/mbadocx"
+    "github.com/didikprabowo/mbadocx/elements"
+)
+
+func main() {
+    doc := mbadocx.New()
+    // Add title
+    doc.AddHeading("Table Examples in mbadocx", 1)
+    doc.AddParagraph().AddText("This document demonstrates various table features.")
+
+    // Example 1: Simple table
+    doc.AddHeading("Example 1: Basic Table", 2)
+    doc.AddParagraph().AddText("A simple 3x3 table:")
+
+    table1 := doc.AddTable(3, 3)
+    if table1 != nil {
+        // Add headers
+        table1.SetCellFormattedText(0, 0, "Name", func(r *elements.Run) {
+            r.SetSpacing(2)
+            r.SetBold(true)
+        })
+        table1.SetCellFormattedText(0, 1, "Age", func(r *elements.Run) {
+            r.SetBold(true)
+        })
+        table1.SetCellFormattedText(0, 2, "City", func(r *elements.Run) {
+            r.SetBold(true)
+        })
+
+        // Add data
+        table1.SetCellText(1, 0, "John Doe")
+        table1.SetCellText(1, 1, "30")
+        table1.SetCellText(1, 2, "New York")
+
+        table1.SetCellText(2, 0, "Jane Smith")
+        table1.SetCellText(2, 1, "25")
+        table1.SetCellText(2, 2, "London")
+
+        // Set table properties
+        table1.SetTableAlignment("center")
+    }
+
+    // Save the document
+    if err := doc.Save("testdata/table_examples.docx"); err != nil {
+        log.Fatalf("Failed to save document: %v", err)
+    }
+}
+```
+
+### Adding Images
+
+```go
+package main
+
+import (
+    "log"
+
+    "github.com/didikprabowo/mbadocx"
+    "github.com/didikprabowo/mbadocx/properties"
+)
+
+func main() {
+    docx := mbadocx.New()
+    docx.AddParagraph().AddText("Image with Borders and Effects")
+
+    img1, err := docx.AddImage("mbadocx_logo.png")
+    if err != nil {
+        log.Fatal("failed add image")
+    }
+
+    img1.
+        SetBorder(3, "#FF0000").
+        SetAlignment(properties.AlignCenter)
+
+        if err :=  docx.Save("testdata/image.docx"); err != nil {
+        log.Fatalf("Failed to save document: %v", err)
+    }
+}
+```
+
 
 ## Contributing
 
