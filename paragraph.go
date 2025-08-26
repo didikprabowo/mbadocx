@@ -1,8 +1,8 @@
 package mbadocx
 
-import "github.com/didikprabowo/mbadocx/elements"
-
-// Content Methods
+import (
+	"github.com/didikprabowo/mbadocx/elements"
+)
 
 // AddParagraph
 func (d *Document) AddParagraph() *elements.Paragraph {
