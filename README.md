@@ -26,7 +26,6 @@ It provides a modular, extensible API for generating Word documents with advance
 - ✅ **Line Breaks** - Control document flow
 - ✅ **Fluent API** - Chainable methods for clean code
 - ✅ **Pure Go** - No external dependencies required
-- ⬜ Headers/Footers (if not implemented)
 
 ### Examples
 - [Basic Document](./example/basic)
@@ -37,7 +36,6 @@ It provides a modular, extensible API for generating Word documents with advance
 
 ### Why mbadocx?
 
-- Simple API - Intuitive and easy to learn
 - Idiomatic Go - Follows Go best practices and conventions
 - Lightweight - Minimal overhead and dependencies
 - Extensible - Modular architecture for easy extension
