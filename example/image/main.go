@@ -11,15 +11,17 @@ func main() {
 	docx := mbadocx.New()
 
 	// imageWithBorderaAndEffects
-	imageWithBorderaAndEffects(docx)
+	imageWithBordersAndEffects(docx)
 
 	// floatingImageExample
 	floatingImageExample(docx)
 
-	docx.Save("testdata/image.docx")
+	if err := docx.Save("testdata/image.docx"); err != nil {
+		log.Fatal(err)
+	}
 }
 
-func imageWithBorderaAndEffects(docx *mbadocx.Document) {
+func imageWithBordersAndEffects(docx *mbadocx.Document) {
 	docx.AddParagraph().AddText("Image with Borders and Effects")
 
 	img1, err := docx.AddImage("mbadocx_logo.png")

@@ -39,7 +39,7 @@ import (
 	"sync"
 	"time"
 
-	contenttypes "github.com/didikprabowo/mbadocx/content_types"
+	ct "github.com/didikprabowo/mbadocx/content_types"
 	"github.com/didikprabowo/mbadocx/metadata"
 	"github.com/didikprabowo/mbadocx/relationships"
 	"github.com/didikprabowo/mbadocx/styles"
@@ -50,7 +50,7 @@ import (
 // Document represents a DOCX document and its core components.
 type Document struct {
 	// Core components
-	contentTypes  *contenttypes.ContentTypes   // Content types for the DOCX package
+	contentTypes  *ct.ContentTypes             // Content types for the DOCX package
 	body          *Body                        // Main document body
 	relationships *relationships.Relationships // Relationships (e.g., images, styles)
 	styles        *styles.Styles               // Document styles
@@ -72,7 +72,7 @@ func New() *Document {
 	docx := &Document{
 		body:          NewBody(),
 		relationships: relationships.NewDefault(),
-		contentTypes:  contenttypes.NewDefaultContentType(),
+		contentTypes:  ct.NewDefaultContentType(),
 		metadata:      metadata.NewDefaultMetadata(),
 		styles:        styles.NewDefaultStyles(),
 		openFiles:     make([]*os.File, 0),

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/didikprabowo/mbadocx"
 	"github.com/didikprabowo/mbadocx/elements"
 )
@@ -52,5 +54,7 @@ func main() {
 		p.AddText(text)
 	}
 
-	doc.Save("testdata/list_example.docx")
+	if err := doc.Save("testdata/list_example.docx"); err != nil {
+		log.Fatal(err)
+	}
 }

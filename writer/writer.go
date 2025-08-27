@@ -75,15 +75,18 @@ func (w *Writer) writeToZip(part zipWritable) error {
 	return err
 }
 
-func (w *Writer) writeFile(name string, data []byte) {
+func (w *Writer) writeFile(name string, data []byte) error {
 	writer, _ := w.zipWriter.Create(name)
-	writer.Write(data)
+	_, err := writer.Write(data)
+	return err
 }
 
 // Write writes the document to an io.Writer
 func (w *Writer) Write(writer io.Writer) error {
 	w.zipWriter = zip.NewWriter(writer)
-	defer w.zipWriter.Close()
+	defer func() {
+		_ = w.zipWriter.Close()
+	}()
 
 	// Set compression level if specified
 	if w.options.CompressionLevel >= 0 {
@@ -116,7 +119,10 @@ func (w *Writer) Write(writer io.Writer) error {
 	// Write file
 	// word/media/*
 	for _, media := range w.document.Media() {
-		w.writeFile(media.TargetPath()+media.FileName(), media.RawContent())
+		err := w.writeFile(media.TargetPath()+media.FileName(), media.RawContent())
+		if err != nil {
+			log.Print(err.Error())
+		}
 		log.Printf("'%s' has been created.\n", media.TargetPath()+media.FileName())
 	}
 

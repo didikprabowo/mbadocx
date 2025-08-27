@@ -30,31 +30,30 @@ func main() {
 	doc.AddParagraph().AddText("A simple 3x3 table:")
 
 	table1 := doc.AddTable(3, 3)
-	if table1 != nil {
-		// Add headers
-		table1.SetCellFormattedText(0, 0, "Name", func(r *elements.Run) {
-			r.SetSpacing(2)
-			r.SetBold(true)
-		})
-		table1.SetCellFormattedText(0, 1, "Age", func(r *elements.Run) {
-			r.SetBold(true)
-		})
-		table1.SetCellFormattedText(0, 2, "City", func(r *elements.Run) {
-			r.SetBold(true)
-		})
 
-		// Add data
-		table1.SetCellText(1, 0, "John Doe")
-		table1.SetCellText(1, 1, "30")
-		table1.SetCellText(1, 2, "New York")
+	// Add headers
+	_ = table1.SetCellFormattedText(0, 0, "Name", func(r *elements.Run) {
+		r.SetSpacing(2)
+		r.SetBold(true)
+	})
+	_ = table1.SetCellFormattedText(0, 1, "Age", func(r *elements.Run) {
+		r.SetBold(true)
+	})
+	_ = table1.SetCellFormattedText(0, 2, "City", func(r *elements.Run) {
+		r.SetBold(true)
+	})
 
-		table1.SetCellText(2, 0, "Jane Smith")
-		table1.SetCellText(2, 1, "25")
-		table1.SetCellText(2, 2, "London")
+	// Add data
+	_ = table1.SetCellText(1, 0, "John Doe")
+	_ = table1.SetCellText(1, 1, "30")
+	_ = table1.SetCellText(1, 2, "New York")
 
-		// Set table properties
-		table1.SetTableAlignment("center")
-	}
+	_ = table1.SetCellText(2, 0, "Jane Smith")
+	_ = table1.SetCellText(2, 1, "25")
+	_ = table1.SetCellText(2, 2, "London")
+
+	// Set table properties
+	table1.SetTableAlignment("center")
 
 	doc.AddParagraph().AddText("") // Add spacing
 
@@ -86,7 +85,7 @@ func main() {
 
 		// Add shading to header row
 		for i := 0; i < 3; i++ {
-			table2.SetCellShading(0, i, "D9D9D9")
+			_ = table2.SetCellShading(0, i, "D9D9D9")
 		}
 	}
 
@@ -112,7 +111,7 @@ func main() {
 		for i := 1; i <= len(employees); i++ {
 			if i%2 == 0 {
 				for j := 0; j < len(headers); j++ {
-					table3.SetCellShading(i, j, "F0F0F0")
+					_ = table3.SetCellShading(i, j, "F0F0F0")
 				}
 			}
 		}
@@ -120,7 +119,7 @@ func main() {
 		// Highlight contract employees
 		for i, emp := range employees {
 			if emp[3] == "Contract" {
-				table3.SetCellShading(i+1, 3, "FFEB9C") // Yellow highlight
+				_ = table3.SetCellShading(i+1, 3, "FFEB9C") // Yellow highlight
 			}
 		}
 	}
@@ -132,58 +131,57 @@ func main() {
 	doc.AddParagraph().AddText("Table with merged cells:")
 
 	table4 := doc.AddTable(5, 4)
-	if table4 != nil {
-		// Title row - merge all columns
-		table4.SetCellFormattedText(0, 0, "Quarterly Sales Report 2024", func(r *elements.Run) {
-			r.SetBold(true)
-			r.SetFontSize(14)
-		})
-		table4.MergeCells(0, 0, 3)
-		table4.SetCellShading(0, 0, "4472C4")
 
-		// Headers
-		table4.SetCellText(1, 0, "Region")
-		table4.SetCellText(1, 1, "Q1")
-		table4.SetCellText(1, 2, "Q2")
-		table4.SetCellText(1, 3, "Total")
+	// Title row - merge all columns
+	_ = table4.SetCellFormattedText(0, 0, "Quarterly Sales Report 2024", func(r *elements.Run) {
+		r.SetBold(true)
+		r.SetFontSize(14)
+	})
+	_ = table4.MergeCells(0, 0, 3)
+	_ = table4.SetCellShading(0, 0, "4472C4")
 
-		// Make headers bold
-		for i := 0; i < 4; i++ {
-			cell := table4.Rows[1].Cells[i]
-			if len(cell.Paragraphs) > 0 {
-				text := getTextFromCell(cell)
-				cell.Paragraphs[0].Clear()
-				cell.Paragraphs[0].AddFormattedText(text, func(r *elements.Run) {
-					r.SetBold(true)
-				})
-			}
+	// Headers
+	_ = table4.SetCellText(1, 0, "Region")
+	_ = table4.SetCellText(1, 1, "Q1")
+	_ = table4.SetCellText(1, 2, "Q2")
+	_ = table4.SetCellText(1, 3, "Total")
+
+	// Make headers bold
+	for i := 0; i < 4; i++ {
+		cell := table4.Rows[1].Cells[i]
+		if len(cell.Paragraphs) > 0 {
+			text := getTextFromCell(cell)
+			cell.Paragraphs[0].Clear()
+			cell.Paragraphs[0].AddFormattedText(text, func(r *elements.Run) {
+				r.SetBold(true)
+			})
 		}
+	}
 
-		// Data
-		regions := [][]string{
-			{"North", "$50,000", "$55,000", "$105,000"},
-			{"South", "$45,000", "$48,000", "$93,000"},
-			{"Total", "$95,000", "$103,000", "$198,000"},
+	// Data
+	regions := [][]string{
+		{"North", "$50,000", "$55,000", "$105,000"},
+		{"South", "$45,000", "$48,000", "$93,000"},
+		{"Total", "$95,000", "$103,000", "$198,000"},
+	}
+
+	for i, region := range regions {
+		for j, value := range region {
+			_ = table4.SetCellText(i+2, j, value)
 		}
+	}
 
-		for i, region := range regions {
-			for j, value := range region {
-				table4.SetCellText(i+2, j, value)
-			}
-		}
-
-		// Style the total row
-		for j := 0; j < 4; j++ {
-			table4.SetCellShading(4, j, "E0E0E0")
-			cell := table4.Rows[4].Cells[j]
-			if len(cell.Paragraphs) > 0 {
-				text := getTextFromCell(cell)
-				cell.Paragraphs[0].Clear()
-				cell.Paragraphs[0].AddFormattedText(text, func(r *elements.Run) {
-					r.SetBold(true)
-					r.SetVerticalAlign("baseline")
-				})
-			}
+	// Style the total row
+	for j := 0; j < 4; j++ {
+		_ = table4.SetCellShading(4, j, "E0E0E0")
+		cell := table4.Rows[4].Cells[j]
+		if len(cell.Paragraphs) > 0 {
+			text := getTextFromCell(cell)
+			cell.Paragraphs[0].Clear()
+			cell.Paragraphs[0].AddFormattedText(text, func(r *elements.Run) {
+				r.SetBold(true)
+				r.SetVerticalAlign("baseline")
+			})
 		}
 	}
 
@@ -194,34 +192,33 @@ func main() {
 	doc.AddParagraph().AddText("Table with custom column widths:")
 
 	table5 := doc.AddTable(3, 3)
-	if table5 != nil {
-		// Set different widths for columns
-		table5.SetColumnWidth(0, "1500") // Narrow
-		table5.SetColumnWidth(1, "3000") // Medium
-		table5.SetColumnWidth(2, "4500") // Wide
 
-		// Add content
-		table5.SetCellText(0, 0, "Narrow")
-		table5.SetCellText(0, 1, "Medium Width")
-		table5.SetCellText(0, 2, "Wide Column")
+	// Set different widths for columns
+	_ = table5.SetColumnWidth(0, "1500") // Narrow
+	_ = table5.SetColumnWidth(1, "3000") // Medium
+	_ = table5.SetColumnWidth(2, "4500") // Wide
 
-		table5.SetCellText(1, 0, "A")
-		table5.SetCellText(1, 1, "This is medium")
-		table5.SetCellText(1, 2, "This column has more space")
+	// Add content
+	_ = table5.SetCellText(0, 0, "Narrow")
+	_ = table5.SetCellText(0, 1, "Medium Width")
+	_ = table5.SetCellText(0, 2, "Wide Column")
 
-		table5.SetCellText(2, 0, "B")
-		table5.SetCellText(2, 1, "Another row")
-		table5.SetCellText(2, 2, "With different content lengths")
+	_ = table5.SetCellText(1, 0, "A")
+	_ = table5.SetCellText(1, 1, "This is medium")
+	_ = table5.SetCellText(1, 2, "This column has more space")
 
-		// Add borders highlight
-		table5.Properties.Borders = &elements.TableBorders{
-			Top:     &elements.BorderStyle{Value: "double", Size: "6", Color: "4472C4"},
-			Bottom:  &elements.BorderStyle{Value: "double", Size: "6", Color: "4472C4"},
-			Left:    &elements.BorderStyle{Value: "single", Size: "4", Color: "4472C4"},
-			Right:   &elements.BorderStyle{Value: "single", Size: "4", Color: "4472C4"},
-			InsideH: &elements.BorderStyle{Value: "single", Size: "2", Color: "808080"},
-			InsideV: &elements.BorderStyle{Value: "single", Size: "2", Color: "808080"},
-		}
+	_ = table5.SetCellText(2, 0, "B")
+	_ = table5.SetCellText(2, 1, "Another row")
+	_ = table5.SetCellText(2, 2, "With different content lengths")
+
+	// Add borders highlight
+	table5.Properties.Borders = &elements.TableBorders{
+		Top:     &elements.BorderStyle{Value: "double", Size: "6", Color: "4472C4"},
+		Bottom:  &elements.BorderStyle{Value: "double", Size: "6", Color: "4472C4"},
+		Left:    &elements.BorderStyle{Value: "single", Size: "4", Color: "4472C4"},
+		Right:   &elements.BorderStyle{Value: "single", Size: "4", Color: "4472C4"},
+		InsideH: &elements.BorderStyle{Value: "single", Size: "2", Color: "808080"},
+		InsideV: &elements.BorderStyle{Value: "single", Size: "2", Color: "808080"},
 	}
 
 	// Add some final text

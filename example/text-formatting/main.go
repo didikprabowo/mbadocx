@@ -38,5 +38,5 @@ func main() {
 	para4.SetAlignment("both")
 	para4.AddText("This is a paragraph demonstrating justified alignment. When text is long enough to wrap across multiple lines.")
 
-	doc.Save("testdata/formatted_text.docx")
+	_ = doc.Save("testdata/formatted_text.docx")
 }

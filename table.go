@@ -134,7 +134,7 @@ func (d *Document) AddTableWithData(data [][]string) *elements.Table {
 	for i, row := range data {
 		for j, cell := range row {
 			if j < cols { // Safety check (should always be true)
-				table.SetCellText(i, j, cell)
+				_ = table.SetCellText(i, j, cell)
 			}
 		}
 	}
@@ -208,21 +208,21 @@ func (d *Document) AddTableWithHeaders(headers []string, data [][]string) *eleme
 	// Populate header row with bold formatting
 	// Using a callback function to apply formatting to each header cell
 	for i, header := range headers {
-		table.SetCellFormattedText(0, i, header, func(r *elements.Run) {
+		_ = table.SetCellFormattedText(0, i, header, func(r *elements.Run) {
 			r.SetBold(true) // Apply bold formatting to header text
 		})
 	}
 
 	// Mark first row as header for proper Word table behavior
 	// This ensures headers repeat on new pages and are recognized by screen readers
-	table.SetHeaderRow(0)
+	_ = table.SetHeaderRow(0)
 
 	// Populate data rows starting from row index 1 (after headers)
 	for i, row := range data {
 		for j, cellData := range row {
 			// Only set cells within column bounds (ignore extra columns)
 			if j < cols {
-				table.SetCellText(i+1, j, cellData) // i+1 because row 0 is headers
+				_ = table.SetCellText(i+1, j, cellData) // i+1 because row 0 is headers
 			}
 		}
 		// Note: If row has fewer columns than headers, cells remain empty
